@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db"
+   xmlns:context="http://www.springframework.org/schema/context" 
+   xmlns="http://www.mulesoft.org/schema/mule/core" 
+   xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" 
+   xmlns:spring="http://www.springframework.org/schema/beans" 
+   xmlns:sfdc="http://www.mulesoft.org/schema/mule/sfdc"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+   version="EE-3.5.1"
+xsi:schemaLocation="http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/sfdc http://www.mulesoft.org/schema/mule/sfdc/current/mule-sfdc.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-current.xsd">
+	
+	<!-- This is the main configuration files, you should place here all the Connectors configuration an declarations -->
+
+    <context:property-placeholder location="common.properties, mule.${mule.env}.properties"/>
+    
+    <db:generic-config name="GenericDatabaseConnector" url="${database.url}" driverClassName="com.mysql.jdbc.Driver" doc:name="Generic Database Configuration" doc:description="DB instance."/>
+
+    <sfdc:config name="Salesforce" username="${sfdc.a.username}" password="${sfdc.a.password}" securityToken="${sfdc.a.securityToken}" url="${sfdc.a.url}" doc:name="Salesforce" doc:description="One of your SalesForce instances, from this is were changes are going to be synced.">
+        <sfdc:connection-pooling-profile initialisationPolicy="INITIALISE_ONE" exhaustedAction="WHEN_EXHAUSTED_GROW"/>
+    </sfdc:config>
+
+</mule>
