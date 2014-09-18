@@ -1,0 +1,153 @@
+<?xml version='1.0' encoding='utf-8'?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+    <groupId>com.mycompany.it.eai</groupId>
+    <artifactId>my-sample-project-munit-test</artifactId>
+    <version>0.0.0.1-SNAPSHOT</version>
+    <packaging>mule</packaging>
+    <description>Service with MUnit test cases.</description>
+    <properties>
+     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>   
+     <mule.version>3.5.1</mule.version>
+     <jdk.version>1.7</jdk.version>
+     <junit.version>4.11</junit.version>
+     <munit.version>3.5</munit.version>
+    </properties>
+
+	<build>
+        <!-- Start: Required for the MUnit resource folder config -->
+	    <testResources>
+		 <testResource>
+			<directory>src/test/munit</directory>
+		 </testResource>
+		<testResource>
+			<directory>src/test/resources</directory>
+		</testResource>		
+	   </testResources>
+	   <!-- End: MUnit resource folder config --> 
+		<plugins>
+			<plugin>
+				<groupId>org.mule.tools</groupId>
+				<artifactId>maven-mule-plugin</artifactId>
+				<configuration>
+					<copyToAppsDirectory>true</copyToAppsDirectory>
+					<inclusions>
+						<inclusion>
+							<groupId>org.mule.modules</groupId>
+							<artifactId>mule-module-sfdc</artifactId>
+						</inclusion>
+					</inclusions>
+				</configuration>
+			</plugin>
+			
+      <!-- MUnit config -->
+      <plugin>
+	    <groupId>org.mule.munit.tools</groupId>
+	    <artifactId>munit-maven-plugin</artifactId>
+	    <version>${munit.version}</version>
+	    <executions>
+		<execution>
+		   <phase>test</phase>
+		   <goals>
+		      <goal>test</goal>
+		   </goals>
+	        </execution>
+	    </executions>
+      </plugin>
+      <!-- End MUnit config -->
+			
+		</plugins>
+	</build>
+
+	<dependencies>
+		
+    <dependency>
+      <groupId>org.mule</groupId>
+      <artifactId>mule-core</artifactId>
+      <version>${mule.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mule.transports</groupId>
+      <artifactId>mule-transport-http</artifactId>
+      <version>${mule.version}</version>
+      <scope>provided</scope>
+     <dependency>
+      <groupId>org.mule.modules</groupId>
+      <artifactId>mule-module-spring-config</artifactId>
+      <version>${mule.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mule.modules</groupId>
+      <artifactId>mule-module-json</artifactId>
+      <version>${mule.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    </dependency>
+		<dependency>
+			<groupId>org.mule.modules</groupId>
+			<artifactId>mule-module-sfdc</artifactId>
+			<version>${sfdc.version}</version>
+		</dependency>
+    <dependency>
+      <groupId>org.mule.modules</groupId>
+      <artifactId>mule-module-json</artifactId>
+      <version>${mule.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.jackson</groupId>
+      <artifactId>jackson-mapper-asl</artifactId>
+      <version>1.9.2</version>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.jackson</groupId>
+      <artifactId>jackson-core-lgpl</artifactId>
+      <version>1.1.1</version>
+    </dependency>
+    <!-- MUnit config -->  
+    <dependency>
+	<groupId>org.mule.munit.tools</groupId>
+	<artifactId>munit-maven-plugin</artifactId>
+	<version>${munit.version}</version>
+    </dependency>
+    <!-- for testing -->
+    <dependency>
+      <groupId>org.mule.tests</groupId>
+      <artifactId>mule-tests-functional</artifactId>
+      <version>${mule.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>${junit.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>mockobjects</groupId>
+      <artifactId>mockobjects-core</artifactId>
+      <version>0.09</version>
+      <scope>test</scope>
+    </dependency>
+	</dependencies>
+
+	<repositories>
+		<repository>
+			<id>mulesoft-releases</id>
+			<name>MuleSoft Releases Repository</name>
+			<url>https://repository.mulesoft.org/nexus/content/repositories/releases/</url>
+			<layout>default</layout>
+		</repository>
+		<repository>
+			<id>mulesoft-snapshots</id>
+			<name>MuleSoft Snapshots Repository</name>
+			<url>https://repository.mulesoft.org/nexus/content/repositories/snapshots/</url>
+			<layout>default</layout>
+		</repository>
+	</repositories>
+
+</project>
