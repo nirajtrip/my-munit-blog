@@ -16,7 +16,7 @@
      <munit.version>3.5</munit.version>
     </properties>
 
-	<build>
+    <build>
         <!-- Start: Required for the MUnit resource folder config -->
 	    <testResources>
 		 <testResource>
@@ -61,8 +61,7 @@
     </plugins>
    </build>
 
-	<dependencies>
-		
+   <dependencies>
    <dependency>
       <groupId>org.mule</groupId>
       <artifactId>mule-core</artifactId>
@@ -99,9 +98,9 @@
     </dependency>
     <!-- MUnit config -->  
     <dependency>
-	<groupId>org.mule.munit.tools</groupId>
-	<artifactId>munit-maven-plugin</artifactId>
-	<version>${munit.version}</version>
+      <groupId>org.mule.munit.tools</groupId>
+      <artifactId>munit-maven-plugin</artifactId>
+      <version>${munit.version}</version>
     </dependency>
     <!-- for testing -->
     <dependency>
