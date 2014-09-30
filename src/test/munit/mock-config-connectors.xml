@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:db="http://www.mulesoft.org/schema/mule/db"
-  xmlns:mulexml="http://www.mulesoft.org/schema/mule/xml" 
-  xmlns:jdbc-ee="http://www.mulesoft.org/schema/mule/ee/jdbc"
+<mule 
   xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" 
   xmlns:json="http://www.mulesoft.org/schema/mule/json"
   xmlns:http="http://www.mulesoft.org/schema/mule/http"
@@ -14,8 +12,6 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   version="EE-3.5.1"
   xsi:schemaLocation="
-http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd 
-http://www.mulesoft.org/schema/mule/ee/jdbc http://www.mulesoft.org/schema/mule/ee/jdbc/current/mule-jdbc-ee.xsd
 http://www.mulesoft.org/schema/mule/cache http://www.mulesoft.org/schema/mule/cache/current/mule-cache.xsd
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
 http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
@@ -25,12 +21,6 @@ http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/jso
 http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd
 http://www.mulesoft.org/schema/mule/xml http://www.mulesoft.org/schema/mule/xml/current/mule-xml.xsd
 ">
-
-  <jdbc-ee:oracle-data-source name="Oracle_Data_Source" user="mockuser" password="mockpassword"
-    url="localhost" transactionIsolation="UNSPECIFIED" doc:name="Oracle Data Source"/>
-    
-  <db:generic-config name="GenericDatabaseConnector" url="localhost" driverClassName="com.mysql.jdbc.Driver" 
-    doc:name="Mocked DB Configuration" doc:description="DB instance."/>
     
   <sfdc:config name="Salesforce"/>
 </mule>
