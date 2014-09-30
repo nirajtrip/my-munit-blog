@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" 
+   xmlns:munit="http://www.mulesoft.org/schema/mule/munit" 
+   xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" 
+   xmlns:spring="http://www.springframework.org/schema/beans" 
+   xmlns:core="http://www.mulesoft.org/schema/mule/core" 
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"   
+   xmlns:mulexml="http://www.mulesoft.org/schema/mule/xml"
+   xmlns:json="http://www.mulesoft.org/schema/mule/json"
+   xmlns:mock="http://www.mulesoft.org/schema/mule/mock"
+   xmlns:context="http://www.springframework.org/schema/context"
+   xmlns:script="http://www.mulesoft.org/schema/mule/scripting"	
+   xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting"
+   version="EE-3.5.1" 
+xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/xml http://www.mulesoft.org/schema/mule/xml/current/mule-xml.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
+http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-current.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/mock http://www.mulesoft.org/schema/mule/mock/current/mule-mock.xsd
+http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd
+">
+
+    <munit:config doc:name="Munit configuration"/>
+    <mock:config/>
+
+    <spring:beans>
+        <spring:import resource="classpath:property-test-config.xml"/>
+        <spring:import resource="classpath:mock-config-connectors.xml"/>
+        <spring:import resource="classpath:contactUpdates-config.xml"/>
+    </spring:beans>
+    
+    <script:script name="mockJsonResponseString" engine="groovy"><![CDATA[import org.codehaus.jackson.JsonNode;
+		import org.codehaus.jackson.map.ObjectMapper;
+		def jsonString = "{\"id\": \"501\", \"firstName\" : \"John\", \"lastName\": \"Doe\"}";            
+        ObjectMapper jsonMapper = new ObjectMapper();        
+        JsonNode messagePayload = jsonMapper.readValue(jsonString, JsonNode.class);
+	    return jsonString;
+		]]>
+    </script:script>
+    
+	<munit:before-test name="mockMessageProcessors" description="Set up message processor mocks">
+    	<logger message="[***  MUNIT-MainFlow-TEST : Starting *** ]" level="INFO"/> 
+		<set-variable variableName="munit-mock-json-response" value="#[resultOfScript('mockJsonResponseString')]"/>
+
+ 		<set-variable variableName="munit-json-payload" value="#[getResource('testData/good-response.json').asString()]"/>
+ 		<set-variable variableName="munit-mock-response" value="#['{&quot;id&quot;:101,&quot;firstName&quot;:&quot;dummyFirstName&quot;,&quot;lastName&quot;:&quot;dummyLastName&quot;]"/>
+ 		<set-variable variableName="munit-http-verb-error"    value="#['{&quot;status&quot;:&quot;Error&quot;,&quot;message&quot;:&quot;Invalid HTTP Method. Only HTTP-POST supported!&quot;}']"/>
+ 	</munit:before-test>
+    
+<!-- ########### Test Main Flow with neggtive scenario- requestCreateContactFlow ################
+	1. Test Case #1: 
+		- Name: Testing HTTP GET call against the requestCreateContactFlow using employeeId: 999
+		- Description: It expects a return payload with error status message
+				       since GET method is not allowed.
+-->	 	    	    
+    <munit:test name="requestCreateContactFlowNegativeTest" description="Test-requestCreateContactFlow -test negative scenario">
+    
+        <mock:when messageProcessor="sfdc:create-single">
+            <mock:then-return payload-ref="#[flowVars['munit-mock-response']]"/>             
+        </mock:when>
+    
+        <munit:set payload-ref="#[flowVars['munit-mock-response']]">
+	     <munit:inbound-properties>
+			<munit:inbound-property key="http.method" value-ref="#['GET']"/>
+			<munit:inbound-property key="http.request" value-ref="#['/v001/contact/999']"/>
+			<munit:inbound-property key="http.request.path" value-ref="#['/v001/contact/999']"/>
+			<munit:inbound-property key="http.relative.path" value-ref="#['/999']"/>			
+            <munit:inbound-property key="testId" value-ref="#[string:101]"/>
+	      </munit:inbound-properties>	    
+	    </munit:set>	    	   
+    
+		<!-- Assertions through Spy (before/after) -->
+		<mock:spy messageProcessor="json:object-to-json-transformer">
+	      <mock:assertions-before-call>
+			<munit:assert-true condition="#[valueOf(payload).is(anyMap())]"/>
+	      </mock:assertions-before-call>
+	      
+	      <mock:assertions-after-call>
+			<munit:assert-true condition="#[valueOf(payload).is(anyString())]" />
+			<munit:assert-on-equals value-ref="#[payload]" expected-ref="#[variable:munit-http-verb-error]" />
+			<munit:assert-on-equals expected-ref="#[string:405]" value-ref="#[message.outboundProperties['http.status']]"/>
+	        <munit:assert-on-equals value-ref="#[flowVars['requestedId']]" expected-ref="#[string:101]]"/>
+	      </mock:assertions-after-call>
+	    </mock:spy>
+    
+        <flow-ref name="requestCreateContactFlow" doc:name="Flow-ref to requestCreateContactFlow"/>
+	    <munit:assert-not-null/>	    
+
+	    <mock:verify-call messageProcessor="sfdc:create-single" atLeast="0"/>
+        <mock:verify-call messageProcessor="set-payload" atLeast="1">
+            <mock:attributes>
+                <mock:attribute name="doc:name" whereValue-ref="#['Set_Payload_405']"/>
+            </mock:attributes>
+        </mock:verify-call>
+        
+		<mock:verify-call messageProcessor="byte-array-to-string-transformer" times="#[1]" />
+		<mock:verify-call messageProcessor="logger" times="#[2]"/>
+	    
+    </munit:test>
+
+
+<!-- ########### Positive Test Scenario - requestCreateContactFlow ################
+	2. Test Case #2: 
+		- Name: Testing HTTP POST call against the requestCreateContactFlow using employeeId: 501
+		- Description: It expects a return payload with success status message
+-->	 	    	    
+    <munit:test name="requestCreateContactFlowTest" description="Test-requestCreateContactFlow -test Positive Scenario">
+    
+        <mock:when messageProcessor="sfdc:create-single">
+             <mock:then-return payload-ref="#[resultOfScript('mockJsonResponseString')]"/>
+        </mock:when>
+    
+        <munit:set payload-ref="#[flowVars['munit-json-payload']]">
+	     <munit:inbound-properties>
+			<munit:inbound-property key="http.method" value-ref="#['POST']"/>
+			<munit:inbound-property key="http.request" value-ref="#['/v001/contact/501']"/>
+			<munit:inbound-property key="http.request.path" value-ref="#['/v001/contact/501']"/>
+			<munit:inbound-property key="http.relative.path" value-ref="#['/501']"/>			
+            <munit:inbound-property key="testId" value-ref="#[string:102]"/>
+	      </munit:inbound-properties>	    
+	    </munit:set>	    	   
+        
+		<!-- Assertions through Spy (before/after) -->
+		<mock:spy messageProcessor="json:object-to-json-transformer">
+	      <mock:assertions-before-call>
+			<munit:assert-true condition="#[valueOf(payload).is(anyMap())]"/>
+	      </mock:assertions-before-call>
+	      
+	      <mock:assertions-after-call>
+			<munit:assert-true condition="#[valueOf(payload).is(anyString())]" />
+			<munit:assert-on-equals value-ref="#[payload]" expected-ref="#[variable:munit-json-payload]" />
+			<munit:assert-on-equals expected-ref="#[string:200]" value-ref="#[message.outboundProperties['http.status']]"/>
+	        <munit:assert-on-equals value-ref="#[flowVars['requestedId']]" expected-ref="#[string:501]]"/>
+	      </mock:assertions-after-call>
+	    </mock:spy>
+    
+        <flow-ref name="requestCreateContactFlow" doc:name="Flow-ref to requestCreateContactFlow"/>
+	    <munit:assert-not-null/>	    
+
+	    <mock:verify-call messageProcessor="sfdc:create-single" atLeast="1"/>
+        <mock:verify-call messageProcessor="set-payload" atLeast="0"/>
+        
+		<mock:verify-call messageProcessor="byte-array-to-string-transformer" times="#[1]" />
+		<mock:verify-call messageProcessor="sfdc:create-single" times="#[1]"/>
+		<mock:verify-call messageProcessor="logger" times="#[2]"/>
+	    
+    </munit:test>
+
+</mule>
+
