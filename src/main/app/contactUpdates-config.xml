@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:mulexml="http://www.mulesoft.org/schema/mule/xml"
+	xmlns:vm="http://www.mulesoft.org/schema/mule/vm"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:json="http://www.mulesoft.org/schema/mule/json"
+	xmlns="http://www.mulesoft.org/schema/mule/core" 
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	version="EE-3.5.1"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/xml http://www.mulesoft.org/schema/mule/xml/current/mule-xml.xsd
+http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
+http://www.mulesoft.org/schema/mule/https http://www.mulesoft.org/schema/mule/https/current/mule-https.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
+
+ 
+  <flow name="requestCreateContactFlow" doc:name="requestCreateContactFlow">
+	
+     <http:inbound-endpoint
+             exchange-pattern="request-response"
+             address="http://${http.host}:${http.port}/${api.version}/contact"
+      		 doc:name="v001/contact" />
+             
+     <byte-array-to-string-transformer doc:name="Byte Array to String"/>
+     <logger level="INFO" category="requestCreateContactFlow" message="Request received. payload: #[payload]" doc:name="Logger"/>
+	 <set-variable variableName="requestedId" value="#[payload.id]" doc:name="save_EmployeeId_from_payload" />
+	 
+        <choice doc:name="Choice"> 
+           <when expression="#[message.inboundProperties['http.method'] == 'POST']">
+           	 <processor-chain doc:name="HTTP-POST-call-handler">
+				 <sfdc:create-single config-ref="Salesforce" type="Contact">
+					<sfdc:object>
+			            <sfdc:object key="FirstName">
+			                #[message.payload.firstName]
+			            </sfdc:object>
+			            <sfdc:object key="LastName">
+			                #[message.payload.lastName]
+			            </sfdc:object>
+			        </sfdc:object>
+			     </sfdc:create-single>
+			     <logger level="INFO" category="requestCreateContactFlow" message="Request processed. payload: #[payload]" doc:name="Logger"/>
+             </processor-chain>
+      	   </when>
+           <otherwise>
+          	  <processor-chain doc:name="For non HTTP-POST call-Handler">
+			     <logger level="ERROR" category="requestCreateContactFlow" message="HTTP Method is not POST; Method=#[header:INBOUND:http.method]. Return HTTP staus=405." doc:name="Logger"/>
+				 <set-payload value="#['405']" doc:name="Set_Payload_405"/>
+ 	    	     <message-properties-transformer doc:name="Set HTTP Status as 405">
+               		<add-message-property key="http.status" value="405"/>
+           		 </message-properties-transformer>  
+     		  </processor-chain>
+		   </otherwise>
+		</choice>
+        <json:object-to-json-transformer doc:name="Object_to_JSON"/>			
+		<http:response-builder contentType="application/json" status="#[groovy:message.getOutboundProperty('http.status') ?: 200]" doc:name="HTTP Response Builder"/>
+	 
+ 
+     <choice-exception-strategy name="defaultChoiceExceptionStrategy" doc:name="Choice Exception Strategy">
+        <catch-exception-strategy when="#[exception.causedBy(java.lang.Exception)]" doc:name="Catch Exception Strategy">
+            <logger level="INFO" doc:name="Logger"/>
+         	<json:object-to-json-transformer doc:name="Object_to_JSON"/>			
+			<http:response-builder contentType="application/json" status="500" doc:name="HTTP Response Builder"/>
+        </catch-exception-strategy>
+     </choice-exception-strategy>
+
+  </flow>
+
+
+</mule>
