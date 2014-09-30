@@ -1,22 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:db="http://www.mulesoft.org/schema/mule/db"
-   xmlns:context="http://www.springframework.org/schema/context" 
+<mule xmlns:context="http://www.springframework.org/schema/context" 
    xmlns="http://www.mulesoft.org/schema/mule/core" 
    xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" 
    xmlns:spring="http://www.springframework.org/schema/beans" 
-   xmlns:sfdc="http://www.mulesoft.org/schema/mule/sfdc"
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
    version="EE-3.5.1" 
 xsi:schemaLocation="
-http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
-http://www.mulesoft.org/schema/mule/sfdc http://www.mulesoft.org/schema/mule/sfdc/current/mule-sfdc.xsd
 http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-current.xsd
 ">
 	
-	<!-- This is dummy configuration for unit testing purpose -->
+	<!-- This is dummy configuration for unit testing purpose. Override the common-config.properties file and use the sme env properties file. -->
     <context:property-placeholder location="common-test-config.properties, mule.${mule.env}.properties"/>
 
 </mule>
