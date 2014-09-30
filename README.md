@@ -10,12 +10,11 @@ Here is a list of the main XML files you'll find in this application:
 * [contactUpdated-config.xml](#contactUpdated-config)
 
 
-## property-config.xml<a name="propertyconfig"/>
+### property-config.xml<a name="propertyconfig"/>
 Configuration for Connectors and properties files.
 
 
-## contactUpdated-config.xml<a name="contactUpdated-config"/>
-
+### contactUpdated-config.xml<a name="contactUpdated-config"/>
 requestCreateContactFlow
 Creates Contact in the Salesforce system using synchronous request/response.
 
