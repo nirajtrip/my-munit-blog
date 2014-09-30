@@ -1,4 +1,4 @@
-my-sample-project-munit-test
+my-sample-project-munit-blog
 ============================
 
 Mule MUnit Blog - Sample Project
@@ -6,26 +6,18 @@ Mule MUnit Blog - Sample Project
 
 Here is a list of the main XML files you'll find in this application:
 
-* [property-config.xml](#propertyconfigxml)
-* [my-sample-project-munit-test.xml](#my-sample-project-munit-test)
-* [errorHandling.xml](#errorhandlingxml)
+* [property-config.xml](#propertyconfig)
+* [contactUpdated-config.xml](#contactUpdated-config)
 
 
-## property-config.xml<a name="propertyconfigxml"/>
+## property-config.xml<a name="propertyconfig"/>
 Configuration for Connectors and properties files.
 
 
-## my-sample-project-munit-test.xml<a name="my-sample-project-munit-test"/>
-There are two flows present in the file:
+## contactUpdated-config.xml<a name="contactUpdated-config"/>
 
-RequestInventoryFlow
-Retrieves a inventory details for items in a synchronous request/response.
-
-UpdateInventoryFlow
-Send an update to the inventory service via a PUT method in an asynchronous manner. 
-
-## errorHandling.xml<a name="errorhandlingxml"/>
-Contains a [Catch Exception Strategy](http://www.mulesoft.org/documentation/display/current/Catch+Exception+Strategy) that is only Logging the exception thrown (If so). As you imagine, this is the right place to handle how your integration will react depending on the different exceptions.
+requestCreateContactFlow
+Creates Contact in the Salesforce system using synchronous request/response.
 
 
 ## Compiling
@@ -50,3 +42,13 @@ $mvn test
 ### MUnit Test Case Summary
 
 * [MUnit-test-readMe.txt](src/test/resources/MUnit-test-readMe.txt)
+
+
+## Related URLs:
+
+
+https://github.com/mulesoft/maven-mule-plugin
+https://github.com/mulesoft/munit
+https://github.com/mulesoft/salesforce-connector
+
+
